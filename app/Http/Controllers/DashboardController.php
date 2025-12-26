@@ -11,18 +11,37 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $today = Carbon::today();
+        $incomeToday = Transaction::whereDate('created_at', today())
+            ->where('payment_status', 'paid')
+            ->sum('total_price');
 
-        $incomeToday = Transaction::whereDate('created_at', $today)->sum('total_price');
+        $cashToday = Transaction::whereDate('created_at', today())
+            ->where('payment_status', 'paid')
+            ->where('payment_method', 'cash')
+            ->sum('total_price');
+            
+        $transferToday = Transaction::whereDate('created_at', today())
+            ->where('payment_status', 'paid')
+            ->whereIn('payment_method', ['transfer', 'qris'])
+            ->sum('total_price');
 
-        $incomeMonth = Transaction::whereMonth('created_at', date('m'))->sum('total_price');
+        $unpaidTotal = Transaction::where('payment_status', 'unpaid')->sum('total_price');
 
-        $activeTransactions = Transaction::whereIn('status', ['pending', 'process'])->count();
+        $processCount = Transaction::where('status', 'process')->count();
+        $readyCount = Transaction::where('status', 'ready')->count();
+        $memberCount = Customer::where('is_member', true)->count();
 
-        $totalMembers = Customer::where('is_member', true)->count();
+        $urgentCount = Transaction::where('status', '!=', 'taken')
+            ->whereDate('deadline', '<=', now())
+            ->count();
 
         $recentTransactions = Transaction::with('customer')->latest()->take(5)->get();
 
-        return view('dashboard', compact('incomeToday', 'incomeMonth', 'activeTransactions', 'totalMembers', 'recentTransactions'));
+        return view('dashboard', compact(
+            'incomeToday', 'cashToday', 'transferToday', 
+            'unpaidTotal', 
+            'processCount', 'readyCount', 'urgentCount',
+            'memberCount', 'recentTransactions'
+        ));
     }
 }

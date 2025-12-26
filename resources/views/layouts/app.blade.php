@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laundry Pro - Enterprise System</title>
+    <title>Laundrymu</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,17 +31,31 @@
                                 </svg>
                             </div>
                             <div>
-                                <span class="font-bold text-xl tracking-tight text-gray-900">LaundryPro</span>
+                                <span class="font-bold text-xl tracking-tight text-gray-900">Laundrymu</span>
                                 <span class="text-xs block text-gray-500 font-medium">Enterprise Management</span>
                             </div>
                         </a>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-600 font-medium px-3 py-2 text-sm transition">
+                    <div class="hidden md:flex items-center space-x-6"> <a href="{{ route('dashboard') }}" 
+                            class="text-sm font-bold {{ request()->routeIs('dashboard') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
                             Dashboard
                         </a>
-                        <a href="{{ route('transactions.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-sm transition transform hover:-translate-y-0.5">
-                            + Transaksi Baru
+                        
+                        <a href="{{ route('transactions.index') }}" 
+                            class="text-sm font-bold {{ request()->routeIs('transactions.*') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
+                            Riwayat Transaksi
+                        </a>
+                        
+                        <a href="{{ route('customers.index') }}" 
+                            class="text-sm font-bold {{ request()->routeIs('customers.*') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
+                            Pelanggan (Member)
+                        </a>
+
+                        <a href="{{ route('transactions.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                            Transaksi Baru
                         </a>
                     </div>
                 </div>

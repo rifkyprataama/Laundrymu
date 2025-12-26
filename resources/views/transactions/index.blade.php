@@ -4,7 +4,7 @@
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Daftar Transaksi</h1>
-            <p class="text-sm text-gray-500 mt-1">Pantau semua aktivitas laundry secara real-time.</p>
+            <p class="text-sm text-gray-500 mt-1">Pantau status, pembayaran, dan pengiriman.</p>
         </div>
     </div>
 
@@ -13,75 +13,106 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID & Tgl</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pelanggan</th>
-                        <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Detail Layanan</th>
-                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Tagihan</th>
-                        <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Pelanggan & Alamat</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Layanan</th>
+                        <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase">Tagihan</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Waktu (WIB)</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200">
                     @forelse($transactions as $t)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-bold text-blue-600">#{{ $t->id }}</div>
-                            <div class="text-xs text-gray-500 mt-0.5">{{ $t->created_at->format('d/m/Y') }}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">
-                                    {{ substr($t->customer->name, 0, 1) }}
-                                </div>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $t->customer->name }}</div>
-                                    <div class="text-xs text-gray-500">{{ $t->customer->phone }}</div>
-                                </div>
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-4 align-top">
+                            <div class="font-bold text-gray-900">{{ $t->customer->name }}</div>
+                            <div class="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                                <span>{{ $t->customer->phone }}</span>
+                                <a href="https://wa.me/{{ $t->customer->phone }}?text=Halo Kak {{ $t->customer->name }}, laundry Anda (ID #{{ $t->id }}) statusnya sekarang: {{ strtoupper($t->status) }}. Total: Rp {{ number_format($t->total_price) }}." 
+                                    target="_blank" 
+                                    class="text-green-600 hover:text-green-800 bg-green-100 px-1 rounded border border-green-200" 
+                                    title="Chat WhatsApp">
+                                    Chat WA 💬
+                                </a>
                             </div>
-                            @if($t->customer->is_member)
-                                <span class="ml-11 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    ⭐ Member
+                            
+                            @if($t->customer->address)
+                            <div class="flex items-start gap-1">
+                                <span class="mt-0.5">📍</span>
+                                <span class="text-xs text-gray-500 italic leading-tight">{{ \Illuminate\Support\Str::limit($t->customer->address, 40) }}</span>
+                            </div>
+                            @endif
+                        </td>
+
+                        <td class="px-4 py-4 align-top">
+                            <div class="text-sm font-medium text-gray-900">{{ $t->service->name }}</div>
+                            <div class="text-xs text-gray-500">{{ $t->weight }} {{ $t->service->unit }}</div>
+                            @if($t->delivery_type == 'delivery')
+                                <span class="inline-block mt-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                    🚚 Delivery
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">{{ $t->service->name }}</div>
-                            <div class="text-xs text-gray-500 font-mono mt-0.5">{{ $t->weight }} {{ $t->service->unit }}</div>
+
+                        <td class="px-4 py-4 align-top text-right">
+                            <div class="font-bold text-gray-900">Rp {{ number_format($t->total_price, 0, ',', '.') }}</div>
+                            
+                            @if($t->delivery_fee > 0)
+                                <div class="text-[10px] text-gray-400">+Ongkir {{ number_format($t->delivery_fee) }}</div>
+                            @endif
+
+                            <div class="mt-1">
+                                @if($t->payment_status == 'paid')
+                                    <span class="text-[10px] font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded border border-green-200">LUNAS</span>
+                                @else
+                                    <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">BELUM LUNAS</span>
+                                @endif
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-right whitespace-nowrap">
-                            <div class="text-sm font-bold text-gray-900">Rp {{ number_format($t->total_price, 0, ',', '.') }}</div>
-                            @if($t->discount_amount > 0)
-                                <div class="text-xs text-red-500 line-through">Disc: Rp {{ number_format($t->discount_amount, 0, ',', '.') }}</div>
+
+                        <td class="px-4 py-4 align-top text-center text-xs">
+                            <div class="text-gray-500">
+                                In: <span class="font-medium text-gray-800">{{ $t->created_at->format('d/m H:i') }}</span>
+                            </div>
+                            @if($t->picked_up_at)
+                                <div class="text-green-600 mt-1">
+                                    Out: <span class="font-bold">{{ \Carbon\Carbon::parse($t->picked_up_at)->format('d/m H:i') }}</span>
+                                </div>
+                            @else
+                                <div class="text-gray-300 italic mt-1 text-[10px]">- Belum diambil -</div>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-center whitespace-nowrap">
+
+                        <td class="px-4 py-4 align-top text-center">
                             @php
-                                $statusClasses = match($t->status) {
-                                    'pending' => 'bg-yellow-50 text-yellow-700 border-yellow-200 ring-yellow-600/20',
-                                    'process' => 'bg-blue-50 text-blue-700 border-blue-200 ring-blue-600/20',
-                                    'ready' => 'bg-green-50 text-green-700 border-green-200 ring-green-600/20',
-                                    'taken' => 'bg-gray-50 text-gray-600 border-gray-200 ring-gray-500/10',
-                                    default => 'bg-red-50 text-red-700 border-red-200'
+                                $statusColor = match($t->status) {
+                                    'pending' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
+                                    'process' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                    'ready' => 'bg-green-50 text-green-700 border-green-200',
+                                    'taken' => 'bg-gray-50 text-gray-600 border-gray-200',
+                                    default => 'bg-red-50 text-red-700'
                                 };
                             @endphp
-                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset {{ $statusClasses }}">
+                            <span class="px-2 py-1 rounded text-xs font-bold border {{ $statusColor }}">
                                 {{ ucfirst($t->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center whitespace-nowrap text-sm font-medium">
-                            <div class="flex justify-center gap-2">
-                                <a href="{{ route('transactions.show', $t->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition">
-                                    Detail & Print
-                                </a>
 
-                                <a href="{{ route('transactions.edit', $t->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition">
-                                    Edit
-                                </a>
+                        <td class="px-4 py-4 align-top text-center">
+                            <div class="flex flex-col gap-2 items-center">
+                                <div class="flex gap-1">
+                                    <a href="{{ route('transactions.show', $t->id) }}" class="text-gray-600 hover:text-blue-600 bg-gray-50 border border-gray-200 hover:border-blue-300 p-1.5 rounded transition" title="Print Struk">
+                                        🖨️
+                                    </a>
+                                    <a href="{{ route('transactions.edit', $t->id) }}" class="text-gray-600 hover:text-yellow-600 bg-gray-50 border border-gray-200 hover:border-yellow-300 p-1.5 rounded transition" title="Edit Data">
+                                        ✏️
+                                    </a>
+                                </div>
                                 
-                                <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete inline-block">
+                                <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete w-full">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition">
+                                    <button type="submit" class="w-full text-[10px] text-red-600 hover:text-red-800 hover:bg-red-50 border border-transparent hover:border-red-100 py-1 rounded transition">
                                         Hapus
                                     </button>
                                 </form>
@@ -90,19 +121,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
-                            <div class="mx-auto h-12 w-12 text-gray-300">
-                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                            </div>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada transaksi</h3>
-                            <p class="mt-1 text-sm text-gray-500">Mulai dengan membuat transaksi baru.</p>
-                            <div class="mt-6">
-                                <a href="{{ route('transactions.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                    + Buat Transaksi
-                                </a>
-                            </div>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                            Belum ada transaksi.
                         </td>
                     </tr>
                     @endforelse
@@ -112,31 +132,24 @@
     </div>
 
     <script type="module">
-    document.addEventListener('DOMContentLoaded', function () {
-        const deleteForms = document.querySelectorAll('.form-delete');
-        
-        deleteForms.forEach(form => {
-            form.addEventListener('submit', function (event) {
-                event.preventDefault(); 
-                
-                const currentForm = this; 
-                
-                Swal.fire({
-                    title: 'Yakin hapus data ini?',
-                    text: "Data yang dihapus tidak bisa dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        currentForm.submit(); 
-                    }
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteForms = document.querySelectorAll('.form-delete');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Hapus Transaksi?',
+                        text: "Data tidak bisa dikembalikan!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) this.submit();
+                    });
                 });
             });
         });
-    });
-</script>
+    </script>
 @endsection
