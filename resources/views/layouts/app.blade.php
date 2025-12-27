@@ -45,6 +45,11 @@
                             class="text-sm font-bold {{ request()->routeIs('transactions.*') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
                             Riwayat Transaksi
                         </a>
+
+                        <a href="{{ route('reports.index') }}" 
+                            class="text-sm font-bold {{ request()->routeIs('reports.*') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
+                            Laporan Keuangan
+                        </a>
                         
                         <a href="{{ route('customers.index') }}" 
                             class="text-sm font-bold {{ request()->routeIs('customers.*') ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600' }} transition">
