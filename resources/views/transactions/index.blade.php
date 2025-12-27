@@ -1,11 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mb-6 flex justify-between items-center">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Daftar Transaksi</h1>
-            <p class="text-sm text-gray-500 mt-1">Pantau status, pembayaran, dan pengiriman.</p>
+            <h1 class="text-2xl font-bold text-gray-800">Daftar Transaksi</h1>
+            <p class="text-sm text-gray-500">Pantau status, pembayaran, dan pengiriman.</p>
         </div>
+
+        <form action="{{ route('transactions.index') }}" method="GET" class="w-full md:w-auto">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" 
+                    class="block w-full md:w-64 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
+                    placeholder="Cari nama pelanggan...">
+                
+                @if(request('search'))
+                    <a href="{{ route('transactions.index') }}" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                @endif
+            </div>
+        </form>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -109,13 +130,26 @@
                                     </a>
                                 </div>
                                 
-                                <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete w-full">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="w-full text-[10px] text-red-600 hover:text-red-800 hover:bg-red-50 border border-transparent hover:border-red-100 py-1 rounded transition">
-                                        Hapus
+                                @if($t->status == 'pending' && $t->payment_status == 'unpaid')
+    
+                                    <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete w-full" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full text-[10px] text-red-600 hover:text-red-800 hover:bg-red-50 border border-transparent hover:border-red-100 py-1 rounded transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+
+                                @else
+
+                                    <button type="button" class="w-full text-[10px] text-gray-400 bg-gray-50 border border-transparent cursor-not-allowed py-1 rounded flex justify-center items-center gap-1" title="Data terkunci karena sudah Lunas atau sedang Dicuci">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                        </svg>
+                                        Terkunci
                                     </button>
-                                </form>
+
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -128,6 +162,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+                {{ $transactions->appends(['search' => request('search')])->links('vendor.pagination.custom') }}
+            </div>
         </div>
     </div>
 

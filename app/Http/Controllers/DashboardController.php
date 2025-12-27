@@ -11,16 +11,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $incomeToday = Transaction::whereDate('created_at', today())
+        $incomeToday = Transaction::whereDate('paid_at', today()) 
             ->where('payment_status', 'paid')
             ->sum('total_price');
 
-        $cashToday = Transaction::whereDate('created_at', today())
+        $cashToday = Transaction::whereDate('paid_at', today()) 
             ->where('payment_status', 'paid')
             ->where('payment_method', 'cash')
             ->sum('total_price');
             
-        $transferToday = Transaction::whereDate('created_at', today())
+        $transferToday = Transaction::whereDate('paid_at', today())
             ->where('payment_status', 'paid')
             ->whereIn('payment_method', ['transfer', 'qris'])
             ->sum('total_price');

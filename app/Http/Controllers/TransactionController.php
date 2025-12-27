@@ -9,12 +9,19 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::with(['customer', 'service'])
-                        ->latest()
-                        ->get();
-                        
+        $query = Transaction::with(['customer', 'service'])->latest();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+
+            $query->whereHas('customer', function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $transactions = $query->paginate(10);
         return view('transactions.index', compact('transactions'));
     }
 
@@ -55,6 +62,11 @@ class TransactionController extends Controller
         $delivery_fee = ($request->delivery_type == 'delivery') ? $request->delivery_fee : 0;
         $total_price = ($basic_price - $discount) + $delivery_fee;
 
+        $paidTime = null;
+        if ($request->payment_status == 'paid') {
+            $paidTime = $request->created_at ?? now();
+        }
+
         Transaction::create([
             'customer_id' => $request->customer_id,
             'service_id' => $request->service_id,
@@ -66,6 +78,7 @@ class TransactionController extends Controller
             'status' => 'pending', 
             'payment_status' => $request->payment_status,
             'payment_method' => ($request->payment_status == 'paid') ? $request->payment_method : null,
+            'paid_at' => $paidTime, 
             'notes' => $request->notes, 
             'deadline' => $request->deadline,
             'created_at' => $request->created_at ?? now() 
@@ -90,6 +103,7 @@ class TransactionController extends Controller
             'weight' => 'required|numeric|min:0.1',
             'status' => 'required',
             'payment_status' => 'required',
+            'payment_method' => 'required_if:payment_status,paid', 
             'delivery_type' => 'required',
             'delivery_fee' => 'numeric|min:0',
             'created_at' => 'required|date' 
@@ -124,11 +138,18 @@ class TransactionController extends Controller
 
         $paymentStatus = $request->payment_status;
         $pickupTime = $transaction->picked_up_at;
+        $paidTime = $transaction->paid_at; 
 
         if ($request->status == 'taken') {
             $paymentStatus = 'paid';
             if ($pickupTime == null) $pickupTime = now();
         }
+
+        if ($transaction->payment_status == 'unpaid' && $paymentStatus == 'paid') {
+            $paidTime = now(); 
+        }
+
+        $paymentMethod = ($paymentStatus == 'paid') ? $request->payment_method : null;
 
         $transaction->update([
             'customer_id' => $request->customer_id,
@@ -140,6 +161,8 @@ class TransactionController extends Controller
             'delivery_fee' => $delivery_fee,
             'status' => $request->status,
             'payment_status' => $paymentStatus,
+            'payment_method' => $paymentMethod,
+            'paid_at' => $paidTime,
             'picked_up_at' => $pickupTime,
             'created_at' => $request->created_at 
         ]);
@@ -149,8 +172,16 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
+        if ($transaction->status != 'pending') {
+            return back()->with('error', 'Gagal hapus! Transaksi sedang diproses atau sudah selesai.');
+        }
+
+        if ($transaction->payment_status == 'paid') {
+            return back()->with('error', 'Gagal hapus! Transaksi sudah lunas. Uang tidak boleh hilang dari pembukuan.');
+        }
+
         $transaction->delete();
-        return redirect()->route('transactions.index')->with('success', 'Data transaksi berhasil dihapus.');
+        return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil dihapus (Data Bersih).');
     }
 
     public function show(Transaction $transaction)
