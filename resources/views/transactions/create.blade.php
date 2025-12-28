@@ -50,18 +50,24 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Layanan <span class="text-red-500">*</span></label>
-                        <select name="service_id" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5">
-                            <option value="">-- Pilih Layanan --</option>
+                        <select name="service_id" id="service_id" required class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="" disabled selected>-- Pilih Layanan --</option>
                             @foreach($services as $s)
-                                <option value="{{ $s->id }}">{{ $s->name }} — Rp {{ number_format($s->price) }}</option>
+                                <option value="{{ $s->id }}" data-unit="{{ $s->unit }}">
+                                    {{ $s->name }} — Rp {{ number_format($s->price) }} / {{ ucfirst($s->unit) }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
+
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Berat / Jumlah <span class="text-red-500">*</span></label>
                         <div class="flex">
-                            <input name="weight" type="number" step="0.1" required class="rounded-none rounded-l-lg bg-gray-50 border border-gray-300 w-full p-2.5" placeholder="0.0">
-                            <span class="inline-flex items-center px-3 text-sm bg-gray-200 border border-l-0 border-gray-300 rounded-r-md font-bold">Kg/Pcs</span>
+                            <input name="weight" type="number" step="0.1" required class="rounded-none rounded-l-lg bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full p-2.5" placeholder="0.0">
+                            
+                            <span id="unit-label" class="inline-flex items-center px-4 text-sm font-bold text-gray-900 bg-gray-200 border border-l-0 border-gray-300 rounded-r-md">
+                                Kg/Pcs
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -164,8 +170,23 @@
             box.classList.remove('hidden');
         } else {
             box.classList.add('hidden');
-            document.querySelector('select[name="payment_method"]').value = "";
+            const paymentSelect = document.querySelector('select[name="payment_method"]');
+            if(paymentSelect) paymentSelect.value = "";
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const serviceSelect = document.getElementById('service_id');
+        const unitLabel = document.getElementById('unit-label');
+
+        if (serviceSelect && unitLabel) {
+
+            serviceSelect.addEventListener('change', function() {
+                const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                const unit = selectedOption.getAttribute('data-unit') || 'kg';
+                unitLabel.innerText = unit.charAt(0).toUpperCase() + unit.slice(1);
+            });
+        }
+    });
 </script>
 @endsection
