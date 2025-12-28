@@ -53,7 +53,7 @@
                                     target="_blank" 
                                     class="text-green-600 hover:text-green-800 bg-green-100 px-1 rounded border border-green-200" 
                                     title="Chat WhatsApp">
-                                    Chat WA 💬
+                                    Chat WA
                                 </a>
                             </div>
                             
@@ -70,7 +70,7 @@
                             <div class="text-xs text-gray-500">{{ $t->weight }} {{ $t->service->unit }}</div>
                             @if($t->delivery_type == 'delivery')
                                 <span class="inline-block mt-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
-                                    🚚 Delivery
+                                    Delivery
                                 </span>
                             @endif
                         </td>

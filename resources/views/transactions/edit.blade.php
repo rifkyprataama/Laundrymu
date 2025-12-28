@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h3 class="font-bold text-gray-700 mb-3 text-sm">🚚 Opsi Pengiriman</h3>
+                    <h3 class="font-bold text-gray-700 mb-3 text-sm">Opsi Pengiriman</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <select name="delivery_type" id="deliveryType" class="w-full border-gray-300 rounded-lg p-2.5" onchange="toggleFee()">
@@ -100,7 +100,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-5">
-                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">💰 Status Pembayaran</h3>
+                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Status Pembayaran</h3>
                 
                 @if($transaction->payment_status == 'paid')
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
@@ -156,7 +156,7 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-5">
-                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">📅 Tanggal Nota</h3>
+                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Tanggal Nota</h3>
                 <input type="datetime-local" name="created_at" value="{{ $transaction->created_at->format('Y-m-d\TH:i') }}" class="w-full text-sm border-gray-300 rounded-lg">
                 <p class="text-xs text-gray-400 mt-2">Ubah tanggal ini hanya jika Anda lupa input transaksi kemarin (Backdate).</p>
             </div>
@@ -167,7 +167,6 @@
 </div>
 
 <script>
-    // 1. Logic Ongkir
     function toggleFee() {
         const type = document.getElementById('deliveryType').value;
         const feeBox = document.getElementById('feeInputBox');
@@ -178,17 +177,12 @@
         }
     }
 
-    // 2. Logic Metode Pembayaran (TAHAP 4)
     function togglePaymentMethod(isPaid) {
         const box = document.getElementById('paymentMethodBox');
         if (isPaid) {
-            // Jika diklik Lunas, munculkan dropdown
             box.classList.remove('hidden');
         } else {
-            // Jika diklik Belum Lunas, sembunyikan dropdown
             box.classList.add('hidden');
-            // Opsional: Reset pilihan ke kosong jika kembali ke unpaid
-            // document.querySelector('select[name="payment_method"]').value = "";
         }
     }
 </script>

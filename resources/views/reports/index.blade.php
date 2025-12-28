@@ -69,13 +69,13 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
-        <h3 class="font-bold text-gray-800 mb-4 text-lg">📈 Grafik Pendapatan Harian</h3>
+        <h3 class="font-bold text-gray-800 mb-4 text-lg">Grafik Pendapatan Harian</h3>
         <div class="relative h-80 w-full">
             <canvas id="incomeChart"></canvas>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+    <div id="tabel-rincian" class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100">
             <h2 class="font-bold text-gray-800">Rincian Transaksi Masuk</h2>
         </div>
@@ -122,19 +122,19 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            {{ $transactions->appends(request()->all())->links('vendor.pagination.custom') }}
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     const ctx = document.getElementById('incomeChart').getContext('2d');
-    
-    // Ambil data dari Controller Laravel
     const labels = {!! json_encode($chartLabels) !!};
     const data = {!! json_encode($chartValues) !!};
-
     const incomeChart = new Chart(ctx, {
         type: 'line', 
         data: {
@@ -156,16 +156,12 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false 
-                },
+                legend: { display: false },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
+                            if (label) { label += ': '; }
                             label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
                             return label;
                         }
@@ -176,19 +172,11 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value) {
-                            return 'Rp ' + value.toLocaleString('id-ID');
-                        }
+                        callback: function(value) { return 'Rp ' + value.toLocaleString('id-ID'); }
                     },
-                    grid: {
-                        color: '#f3f4f6'
-                    }
+                    grid: { color: '#f3f4f6' }
                 },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
+                x: { grid: { display: false } }
             }
         }
     });
