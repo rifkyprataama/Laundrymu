@@ -14,4 +14,15 @@ class Customer extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function getWhatsappUrlAttribute()
+    {
+        $phone = $this->phone; 
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        if (substr($phone, 0, 1) === '0') {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        return $phone;
+    }
 }

@@ -47,14 +47,9 @@
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-4 align-top">
                             <div class="font-bold text-gray-900">{{ $t->customer->name }}</div>
-                            <div class="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                                <span>{{ $t->customer->phone }}</span>
-                                <a href="https://wa.me/{{ $t->customer->phone }}?text=Halo Kak {{ $t->customer->name }}, laundry Anda (ID #{{ $t->id }}) statusnya sekarang: {{ strtoupper($t->status) }}. Total: Rp {{ number_format($t->total_price) }}." 
-                                    target="_blank" 
-                                    class="text-green-600 hover:text-green-800 bg-green-100 px-1 rounded border border-green-200" 
-                                    title="Chat WhatsApp">
-                                    Chat WA
-                                </a>
+                            
+                            <div class="text-xs text-gray-500 mb-1">
+                                {{ $t->customer->phone }}
                             </div>
                             
                             @if($t->customer->address)
@@ -121,34 +116,57 @@
 
                         <td class="px-4 py-4 align-top text-center">
                             <div class="flex flex-col gap-2 items-center">
+                                
                                 <div class="flex gap-1">
-                                    <a href="{{ route('transactions.show', $t->id) }}" class="text-gray-600 hover:text-blue-600 bg-gray-50 border border-gray-200 hover:border-blue-300 p-1.5 rounded transition" title="Print Struk">
-                                        🖨️
+                                    
+                                    <a href="{{ route('transactions.show', $t->id) }}" class="text-gray-600 hover:text-blue-600 bg-gray-50 border border-gray-200 hover:border-blue-300 p-1.5 rounded transition" title="Print Struk / Detail">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                        </svg>
                                     </a>
+
+                                    @php
+                                        $msg = "Halo Kak {$t->customer->name}, Laundry (Nota #{$t->id}) ";
+                                        if($t->status == 'done') {
+                                            $msg .= "sudah SELESAI dan SIAP DIAMBIL. ";
+                                        } elseif($t->status == 'process') {
+                                            $msg .= "sedang kami PROSES. ";
+                                        } else {
+                                            $msg .= "sudah kami TERIMA. ";
+                                        }
+                                        $msg .= "Total Tagihan: Rp " . number_format($t->total_price);
+
+                                        $waLink = "https://wa.me/" . $t->customer->whatsapp_url . "?text=" . urlencode($msg);
+                                    @endphp
+
+                                    <a href="{{ $waLink }}" target="_blank" class="text-green-600 hover:text-green-700 bg-green-50 border border-green-200 hover:border-green-300 p-1.5 rounded transition" title="Kirim Info ke WA">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                        </svg>
+                                    </a>
+
                                     <a href="{{ route('transactions.edit', $t->id) }}" class="text-gray-600 hover:text-yellow-600 bg-gray-50 border border-gray-200 hover:border-yellow-300 p-1.5 rounded transition" title="Edit Data">
-                                        ✏️
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
                                     </a>
                                 </div>
                                 
                                 @if($t->status == 'pending' && $t->payment_status == 'unpaid')
-    
-                                    <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete w-full" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                    <form action="{{ route('transactions.destroy', $t->id) }}" method="POST" class="form-delete w-full">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="w-full text-[10px] text-red-600 hover:text-red-800 hover:bg-red-50 border border-transparent hover:border-red-100 py-1 rounded transition">
                                             Hapus
                                         </button>
                                     </form>
-
                                 @else
-
                                     <button type="button" class="w-full text-[10px] text-gray-400 bg-gray-50 border border-transparent cursor-not-allowed py-1 rounded flex justify-center items-center gap-1" title="Data terkunci karena sudah Lunas atau sedang Dicuci">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                                         </svg>
                                         Terkunci
                                     </button>
-
                                 @endif
                             </div>
                         </td>
