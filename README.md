@@ -85,7 +85,11 @@ Ikuti langkah berikut untuk menjalankan proyek di komputer lokal:
 
 5.  **Jalankan Aplikasi**
     ```bash
-    php artisan serve
+    Terminal 1: npm run dev
+    ```
+
+    ```bash
+    Terminal 2: php artisan serve
     ```
     Buka browser dan akses `http://127.0.0.1:8000`
 
