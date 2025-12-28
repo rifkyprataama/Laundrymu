@@ -35,37 +35,55 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-6 text-white shadow-lg">
-            <h3 class="text-blue-100 text-sm font-semibold mb-1">TOTAL PEMASUKAN</h3>
-            <div class="text-3xl font-bold">Rp {{ number_format($totalIncome) }}</div>
-            <div class="text-xs text-blue-100 mt-2 opacity-80">
-                Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
+        <div class="bg-white rounded-xl p-6 border border-blue-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Pemasukan</h3>
+            <div class="text-3xl font-extrabold text-blue-600 mb-2">
+                Rp {{ number_format($totalIncome) }}
+            </div>
+            <div class="flex items-center gap-3 text-xs text-gray-400 font-medium">
+                <span class="flex items-center gap-1">
+                    <div class="w-2 h-2 rounded-full bg-green-400"></div> Cash: {{ number_format($totalCash) }}
+                </span>
+                <span class="flex items-center gap-1">
+                    <div class="w-2 h-2 rounded-full bg-purple-400"></div> Transfer: {{ number_format($totalTransfer) }}
+                </span>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-md">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="p-2 bg-green-100 rounded-lg text-green-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-gray-500 text-sm font-bold">Tunai (Cash)</h3>
+        <div class="bg-white rounded-xl p-6 border border-red-100 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                </svg>
             </div>
-            <div class="text-2xl font-bold text-gray-800">Rp {{ number_format($totalCash) }}</div>
+            <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Pengeluaran</h3>
+            <div class="text-3xl font-extrabold text-red-500 mb-2">
+                - Rp {{ number_format($totalExpense) }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+                Biaya operasional & belanja.
+            </div>
         </div>
 
-        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-md">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="p-2 bg-purple-100 rounded-lg text-purple-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                </div>
-                <h3 class="text-gray-500 text-sm font-bold">Transfer / QRIS</h3>
+        <div class="bg-gradient-to-br {{ $netProfit >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600' }} rounded-xl p-6 text-white shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
-            <div class="text-2xl font-bold text-gray-800">Rp {{ number_format($totalTransfer) }}</div>
-        </div>
+            <h3 class="text-green-100 text-xs font-bold uppercase tracking-wider mb-1">Keuntungan Bersih</h3>
+            <div class="text-4xl font-extrabold mb-1">
+                Rp {{ number_format($netProfit) }}
+            </div>
+            <div class="text-xs text-green-100 opacity-80 mt-2 font-medium">
+                (Pemasukan - Pengeluaran)
+            </div>
+        </div> 
     </div>
 
     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8">
